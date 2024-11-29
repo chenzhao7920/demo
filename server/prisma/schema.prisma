@@ -14,11 +14,11 @@ model locations {
   city_id      Int
   country_id   Int
   county_id    Int
-  timeZone_id  Int
+  timezone_id  Int
   cities       cities      @relation(fields: [city_id], references: [id])
   counties     counties    @relation(fields: [county_id], references: [id])
   countries    countries   @relation(fields: [country_id], references: [id])
-  timeZones    timeZones   @relation(fields:[timeZone_id], references: [id])
+  timezones    timezones   @relation(fields: [timezone_id], references: [id])
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 }
@@ -44,10 +44,10 @@ model countries {
   name          String       @unique
   locations     locations[]
   createdAt     DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  updatedAt      DateTime     @updatedAt
 }
 
-model timeZones {
+model timezones {
   id          Int          @id @default(autoincrement())
   name        String       @unique
   locations   locations[]
