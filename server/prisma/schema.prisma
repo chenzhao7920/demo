@@ -41,7 +41,7 @@ model counties {
 
 model countries {
   id            Int          @id @default(autoincrement())
-  country       String       @unique
+  name          String       @unique
   locations     locations[]
   createdAt     DateTime     @default(now())
   updatedAt DateTime     @updatedAt
