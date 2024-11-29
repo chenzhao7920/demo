@@ -1,0 +1,34 @@
+version: '3.9'
+services:
+  db:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: database
+    volumes:
+      - dataStealth-postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+        - dsnetwork
+
+  backend:
+    build: ./server
+    volumes:
+      - ./server:/usr/src/app
+    ports:
+      - "5000:5000"
+    environment:
+      DATABASE_URL: postgresql://user:password@db:5432/database
+    depends_on:
+      - db
+    networks:
+      - dsnetwork
+volumes:
+  dataStealth-postgres:
+
+networks:
+  dsnetwork:
+    driver: bridge

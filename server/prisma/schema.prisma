@@ -1,0 +1,56 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+generator client {
+  provider = "prisma-client-js"
+}
+model locations {
+  id           Int         @id @default(autoincrement())
+  street       String
+  zip_code     String
+  latitude     Float
+  longitude    Float
+  city_id      Int
+  country_id   Int
+  county_id    Int
+  timeZone_id  Int
+  cities       cities      @relation(fields: [city_id], references: [id])
+  counties     counties    @relation(fields: [county_id], references: [id])
+  countries    countries   @relation(fields: [country_id], references: [id])
+  timeZones    timeZones   @relation(fields:[timeZone_id], references: [id])
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model cities {
+  id          Int        @id @default(autoincrement())
+  name        String     @unique
+  locations   locations[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model counties {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
+  locations   locations[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model countries {
+  id            Int          @id @default(autoincrement())
+  country       String       @unique
+  locations     locations[]
+  createdAt     DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+model timeZones {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
+  locations   locations[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
