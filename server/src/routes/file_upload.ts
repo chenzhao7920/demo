@@ -1,6 +1,6 @@
 import express from "express";
 import multer from 'multer'
-import { batchCreateLocationsFromCSV } from "../controllers/batchCreateLocationsFromCSV.js";
+import { batchCreateLocationsFromCSV } from "../controllers/batchCreateLocationsFromCSV";
 
 //import { multerUpload } from "../config/multer.config";
 const multerStorage = multer.memoryStorage();
