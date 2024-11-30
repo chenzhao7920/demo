@@ -1,9 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import multer from 'multer'
 import route from "./src/routes/index.js"
-const multerStorage = multer.memoryStorage();
-const multerUpload = multer({ storage: multerStorage });
 
 const app = express();
 app.use(express.json()); // Middleware to parse JSON request bodies
@@ -12,7 +9,9 @@ app.use(express.json()); // Middleware to parse JSON request bodies
 app.get('/', (req:any, res:any) => {
     res.json({ message: "healthy" });
 });
-
+app.get('/api/v1/locations', (req:any, res:any) => {
+    res.json({ message: "healthy" });
+});
 app.use(route);
 
 // Use the routes

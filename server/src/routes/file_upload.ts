@@ -1,4 +1,4 @@
-import express from "express";
+import { Router} from "express";
 import multer from 'multer'
 import { batchCreateLocationsFromCSV } from "../controllers/batchCreateLocationsFromCSV";
 
@@ -6,6 +6,6 @@ import { batchCreateLocationsFromCSV } from "../controllers/batchCreateLocations
 const multerStorage = multer.memoryStorage();
 const multerUpload = multer({ storage: multerStorage });
 
-export const fileUploads = express.Router();
+export const fileUploads = Router();
 
 fileUploads.post("/upload_locations", multerUpload.single("file"),  batchCreateLocationsFromCSV);

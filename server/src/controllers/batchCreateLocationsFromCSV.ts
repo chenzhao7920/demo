@@ -1,33 +1,10 @@
-import { PrismaClient } from '@prisma/client';
 import { parse } from "fast-csv";
 import { Readable } from 'stream';
 import IORedis from "ioredis"
 import { Queue, Worker, Job } from "bullmq";
 import  { v4 as uuidv4} from 'uuid'
-const prisma = new PrismaClient();
-type  Location = {
-  id: number;
-  street: string;
-  zip_code: string;
-  latitude: number;
-  longitude: number;
-  city_id: number;
-  country_id: number;
-  county_id: number;
-  createdAt: Date;
-  updatedAt: Date;
-  timezone_id: number;
-}
-type RawLocation = {
-  street: string;
-  city: string;
-  zip_code: string;
-  county: string;
-  country: string;
-  latitude: string;
-  longitude: string;
-  time_zone: string;
-}
+import { PrismaWrite} from "../services/prisma_client"
+import { LocationData, Location} from "../utils/types"
 export const batchCreateLocationsFromCSV = async(req: any, res: any) =>{
         const { file } = req
         if(file?.mimetype !== 'text/csv'){
@@ -49,7 +26,7 @@ export const batchCreateLocationsFromCSV = async(req: any, res: any) =>{
               try {
                 const stream = Readable.from(file.buffer)
                 stream.pipe(parse({headers: true,  discardUnmappedColumns: true, ignoreEmpty: true, trim: true}))
-                  .on("data", async (row: RawLocation) => {
+                  .on("data", async (row: LocationData) => {
                     await job_queue.add("createOneLocation", row, { removeOnComplete: true, removeOnFail: true});
                     data.push(row);
                   })
@@ -142,10 +119,10 @@ export const batchCreateLocationsFromCSV = async(req: any, res: any) =>{
             return res.status(500).json({message: "internal errors"})
           }
 }
-const createOneLocation = async (location: RawLocation): Promise<{ success_created?: Location; fail_created?: RawLocation}> => {
+const createOneLocation = async (location: LocationData): Promise<{ success_created?: Location; fail_created?: LocationData}> => {
   try {
     // Start the transaction
-    return prisma.$transaction(async (tx: any) => {
+    return PrismaWrite.$transaction(async (tx: any) => {
       // Upsert city, county, country, and timezone
       const city = await tx.cities.upsert({
         create: { name: location.city },
