@@ -1,8 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import route from "./src/routes/index.js"
-
+import { cors_options } from "./src/utils/cors_options.js"
 const app = express();
+app.use(cors(cors_options));
 app.use(express.json()); // Middleware to parse JSON request bodies
 
 // Test route
@@ -15,7 +16,7 @@ app.get('/api/v1/locations', (req:any, res:any) => {
 app.use(route);
 
 // Use the routes
-app.use(cors());
+
 
 
 // Start the server
