@@ -8,4 +8,4 @@ const multerUpload = multer({ storage: multerStorage });
 
 export const fileUploads = express.Router();
 
-fileUploads.post("/upload", multerUpload.single("file"),  batchCreateLocationsFromCSV);
+fileUploads.post("/upload_locations", multerUpload.single("file"),  batchCreateLocationsFromCSV);
