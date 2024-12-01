@@ -11,12 +11,15 @@ In the project directory, you can use docker compose command to create app conta
 This will:
 
 Build and start the PostgreSql Database services and Redis Database Service.
+## Create Database
+inside server folder, use prisma migrations files to migrate prisma db to postgreSQL
+### `npx prisma migrate deploy`
 
 ## Run Backend
 In server folder
 ### `cd server`
 ### `npm install`
-### `npm start`
+### `npm run dev`
 The backend will be accessible at http://localhost:5000
 
 ## Run Frontend
