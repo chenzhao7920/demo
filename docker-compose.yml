@@ -24,10 +24,24 @@ services:
       DATABASE_URL: postgresql://user:password@db:5432/database
     depends_on:
       - db
+      - redis
     networks:
       - dsnetwork
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    networks:
+      - dsnetwork
+
 volumes:
   dataStealth-postgres:
+  redis-data:
+    driver: local
 
 networks:
   dsnetwork:
