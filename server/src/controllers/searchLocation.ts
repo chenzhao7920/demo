@@ -12,7 +12,7 @@ export const searchLocation = async (req: any, res: any) => {
         const whereClauses = search_keyword.length ? `where
                   (ci.name ILIKE '%' || '${address}' || '%' OR
                   ct.name ILIKE '%' ||  '${address}' || '%' )` : ""
-        console.log(address,latitude,longitude)
+
         const locations: [LocationData] = await PrismaRead.$queryRaw`
               SELECT
               lo.id,
@@ -45,7 +45,6 @@ export const searchLocation = async (req: any, res: any) => {
               ${Prisma.raw(whereClauses)}
               Order By score desc
         `
-      console.log("whereClauses",whereClauses)
       const calculated_locations = locations?.map((location) =>{
          let location_keywords =[...location?.city?.toLowerCase()?.split(" "), ...location?.county?.toLowerCase()?.split(" ")]
          let name_score:number = location_keywords.reduce((count, keyword)=> (
@@ -71,7 +70,7 @@ export const searchLocation = async (req: any, res: any) => {
         totalPages: Math.ceil(calculated_locations.length / skip)
       });
     } catch (error) {
-        console.log(error)
+      //console.log(error)
       res.status(500).json({ error: "Something wrong" });
     }
   }

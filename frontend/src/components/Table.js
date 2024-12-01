@@ -33,12 +33,11 @@ export default function SelectableTable() {
     const formData = new FormData();
     formData.append('file', fileData);
     let apiUrl = `/upload_locations`
-    const rep = await client.post(apiUrl, formData, {
+    const rep = await Client.post(apiUrl, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       },
     });
-    console.log("upload file",rep)
   }
   const fetchLocations = useCallback(async () => {
     try {
