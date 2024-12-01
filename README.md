@@ -17,6 +17,7 @@ inside server folder, use prisma migrations files to migrate prisma db to postgr
 
 ## Run Backend
 In server folder
+use npm version >= v18.18.0
 ### `cd server`
 ### `npm install`
 ### `npm run dev`
