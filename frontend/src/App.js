@@ -6,8 +6,8 @@ function App() {
   return (
      <Router>
         <Routes>
-          <Route path = '/' element = {<Navigate to="/locations" replace />}/>
-          <Route path = '/locations' element = {<GeoLocations/>}/>
+          <Route path = '/' element = {<Navigate to="/locations/search" replace />}/>
+          <Route path = '/locations/search' element = {<GeoLocations/>}/>
           <Route path="*" element={<NotFound />} />
         </Routes>
      </Router>

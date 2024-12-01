@@ -19,6 +19,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { styled } from '@mui/material/styles';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import Snackbar from "./SnackBar";
+import { useNavigate } from 'react-router-dom';
 export default function SelectableTable() {
   const [searchFields, setSearchFields] = useState({
     address: '',
@@ -31,6 +32,7 @@ export default function SelectableTable() {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [count, setCount] = React.useState(0);
   const [locations, setLocations] = useState([]);
+  const navigate = useNavigate();
   const handleClickAdd = async(e) =>{
     let fileData = e.target.files[0]
     const formData = new FormData();
@@ -45,7 +47,8 @@ export default function SelectableTable() {
       setSnackbarMessage(rep.message);
       setSnackbarOpen(true);
     }catch(error){
-      setSnackbarMessage('Error uploading file!');
+      console.log(error)
+      setSnackbarMessage(error.message);
       setSnackbarOpen(true);
     }
   }
@@ -57,6 +60,7 @@ export default function SelectableTable() {
          Object.keys(searchFields).forEach((key) =>(apiUrl += `&${key}=${searchFields[key]}`))
       }
       const {locations, total} = await Client.get(apiUrl);
+      navigate(`${apiUrl}`);
       setLocations(locations);
       setCount(total)
     } catch (error) {
@@ -73,6 +77,7 @@ export default function SelectableTable() {
         ...pre,
         [name]: value
       }))
+      //navigate(`?search=${term}`);
   };
 
   const handleChangePage = (event, newPage) => {

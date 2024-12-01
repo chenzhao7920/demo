@@ -4,7 +4,7 @@ import Snackbar from '@mui/material/Snackbar';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 
-export default function SimpleSnackbar({message, open, onClose}) {
+export default function SimpleSnackbar({message, status, open, onClose}) {
   const action = (
     <React.Fragment>
       <Button color="secondary" size="small" onClick={onClose}>
