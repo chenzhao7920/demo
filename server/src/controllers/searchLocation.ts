@@ -1,7 +1,7 @@
 import { PrismaRead } from "../services/prisma_client"
-import { PrismaClient,Prisma} from '@prisma/client';
-const prisma = new PrismaClient();
+import { Prisma } from '@prisma/client';
 import { LocationData } from "../utils/types"
+
 export const searchLocation = async (req: any, res: any) => {
     try {
         let {address, latitude, longitude, limit, page } = req.query;
@@ -10,7 +10,8 @@ export const searchLocation = async (req: any, res: any) => {
 
         const search_keyword = address ? [...address?.toLowerCase().split(" ")] : []
         const whereClauses = search_keyword.length ? `where
-                  (ci.name ILIKE '%' || '${address}' || '%' OR
+                  (lo.street ILIKE '%' || '${address}' || '%' OR
+                  ci.name ILIKE '%' || '${address}' || '%' OR
                   ct.name ILIKE '%' ||  '${address}' || '%' )` : ""
 
         const locations: [LocationData] = await PrismaRead.$queryRaw`
@@ -24,6 +25,7 @@ export const searchLocation = async (req: any, res: any) => {
               ct.name as county,
               ctr.name as country,
               tz.name as timezone,
+              concat (lo.street, ci.name, ct.name, ctr.name) as full_address,
               CASE
                   WHEN ABS(lo.latitude - ${latitude}) <= 2  AND ABS(lo.longitude - (${longitude})) <= 2 THEN   1
                   WHEN ABS(lo.latitude - ${latitude}) <= 3  AND ABS(lo.longitude - (${longitude})) <= 3 THEN   0.9
@@ -46,7 +48,7 @@ export const searchLocation = async (req: any, res: any) => {
               Order By score desc
         `
       const calculated_locations = locations?.map((location) =>{
-         let location_keywords =[...location?.city?.toLowerCase()?.split(" "), ...location?.county?.toLowerCase()?.split(" ")]
+         let location_keywords =[...location?.city?.toLowerCase()?.split(" "), ...location?.county?.toLowerCase()?.split(" "), ...location?.street?.toLowerCase()?.split(" ")]
          let name_score:number = location_keywords.reduce((count, keyword)=> (
              count += search_keyword.includes(keyword) ? 0.1 : 0
          ), 0 )

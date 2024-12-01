@@ -13,17 +13,20 @@ import {
   Button,
   Stack,
 } from '@mui/material';
+
 import Client from "../utils/client"
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { styled } from '@mui/material/styles';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
+import Snackbar from "./SnackBar";
 export default function SelectableTable() {
-  const [searchTerm, setSearchTerm] = useState('');
   const [searchFields, setSearchFields] = useState({
     address: '',
     latitude: '',
     longitude: '',
   });
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [count, setCount] = React.useState(0);
@@ -33,14 +36,22 @@ export default function SelectableTable() {
     const formData = new FormData();
     formData.append('file', fileData);
     let apiUrl = `/upload_locations`
-    const rep = await Client.post(apiUrl, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      },
-    });
+    try{
+      const rep = await Client.post(apiUrl, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+      });
+      setSnackbarMessage(rep.message);
+      setSnackbarOpen(true);
+    }catch(error){
+      setSnackbarMessage('Error uploading file!');
+      setSnackbarOpen(true);
+    }
   }
-  const fetchLocations = useCallback(async () => {
+  const fetchLocations = useCallback(async(event) => {
     try {
+      event?.preventDefault()
       let apiUrl = `/locations/search?limit=${rowsPerPage}&page=${page+1}`
       if(Object.values(searchFields).filter(e=> !!e).length > 0){
          Object.keys(searchFields).forEach((key) =>(apiUrl += `&${key}=${searchFields[key]}`))
@@ -52,16 +63,10 @@ export default function SelectableTable() {
       console.error('Failed to fetch locations:', error);
     }
   }, [searchFields, page, rowsPerPage])
-
-  // Fetch locations from API on component mount
+  // Fetch locations from API on component mount, pagination update
   useEffect(() => {
     fetchLocations();
-  }, [fetchLocations]);
-
-
-  const handleSearch = (event) => {
-    setSearchTerm(event.target.value);
-  };
+  }, [page, rowsPerPage]);
   const handleAddSearchTerm = (event) => {
       const{ name, value} = event.target
       setSearchFields((pre) => ({
@@ -77,7 +82,9 @@ export default function SelectableTable() {
     setRowsPerPage(parseInt(event.target.value));
     setPage(0);
   };
-
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
   const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
     clipPath: 'inset(50%)',
@@ -91,8 +98,14 @@ export default function SelectableTable() {
   });
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden', p:2 }}>
+      <Snackbar
+        open={snackbarOpen}
+        onClose={handleSnackbarClose}
+        message={snackbarMessage}
+      />
       <Stack direction="row" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3}}>
         <Stack direction="row" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: "backgroundColor: '#F3F6F9'"}}>
+        <form autoComplete="off" onSubmit={fetchLocations}>
           <TextField
             variant="outlined"
             name="address"
@@ -124,13 +137,14 @@ export default function SelectableTable() {
             sx={{backgroundColor: '#F3F6F9'}}
           />
           <IconButton
+             type="submit"
              variant="outlined"
              aria-label="search"
              color="primary"
-             onClick={handleSearch}
           >
             <SearchRoundedIcon />
           </IconButton>
+        </form>
         </Stack>
         <Button
           component="label"
@@ -200,6 +214,4 @@ export default function SelectableTable() {
 
     </Paper>
   );
-
-
 }
