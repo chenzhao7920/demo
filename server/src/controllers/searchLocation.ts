@@ -1,12 +1,21 @@
 import { PrismaRead } from "../services/prisma_client"
+import { PrismaClient,Prisma} from '@prisma/client';
+const prisma = new PrismaClient();
 import { LocationData } from "../utils/types"
 export const searchLocation = async (req: any, res: any) => {
     try {
-        let {q, latitude, longitude} = req.query;
+        let {address, latitude, longitude, limit, page } = req.query;
         latitude = parseFloat(latitude);
         longitude = parseFloat(longitude);
+
+        const search_keyword = address ? [...address?.toLowerCase().split(" ")] : []
+        const whereClauses = search_keyword.length ? `where
+                  (ci.name ILIKE '%' || '${address}' || '%' OR
+                  ct.name ILIKE '%' ||  '${address}' || '%' )` : ""
+        console.log(address,latitude,longitude)
         const locations: [LocationData] = await PrismaRead.$queryRaw`
               SELECT
+              lo.id,
               lo.street,
               lo.zip_code,
               lo.latitude,
@@ -33,15 +42,12 @@ export const searchLocation = async (req: any, res: any) => {
                   left join counties ct on (ct.id = lo.county_id)
                   left join countries ctr on (ctr.id = lo.country_id)
                   left join timezones tz on (tz.id = lo.timezone_id)
-              where
-                  (ci.name ILIKE '%' || ${q} || '%' OR
-                  ct.name ILIKE '%' || ${q} || '%' )
+              ${Prisma.raw(whereClauses)}
               Order By score desc
-      `
-      const search_keyword = [...q.toLowerCase().split(" ")]
-
-      const calculated_locations = locations.map((location) =>{
-         let location_keywords =[...location.city.toLowerCase().split(" "), ...location.county.toLowerCase().split(" ")]
+        `
+      console.log("whereClauses",whereClauses)
+      const calculated_locations = locations?.map((location) =>{
+         let location_keywords =[...location?.city?.toLowerCase()?.split(" "), ...location?.county?.toLowerCase()?.split(" ")]
          let name_score:number = location_keywords.reduce((count, keyword)=> (
              count += search_keyword.includes(keyword) ? 0.1 : 0
          ), 0 )
@@ -49,14 +55,20 @@ export const searchLocation = async (req: any, res: any) => {
          if(location.score > 1){
             location.score = 1
          }
-         if( location.score > 0 ) {
-            return location
-         }
-      }).filter((e) => !!e)
+         return location
+      })
+      if(page <= 0) page = 1
+      if(limit <= 0) limit = 1
+      let cur:number = parseInt(page) ?? 1
+      let skip:number = parseInt(limit) ?? 10
+      let start:number = (cur - 1) * skip;
+      let end:number = start + skip;
 
       res.status(201).json({
-        locations: calculated_locations,
-        total: calculated_locations.length
+        locations: calculated_locations.slice(start, end),
+        total: calculated_locations.length,
+        cur,
+        totalPages: Math.ceil(calculated_locations.length / skip)
       });
     } catch (error) {
         console.log(error)
