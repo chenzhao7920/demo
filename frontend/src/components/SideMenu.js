@@ -44,7 +44,7 @@ export default function SideMenu() {
       >
         <Avatar
           sizes="small"
-          alt={"chenzhao7920@gmail.com"}
+          alt={"user@gmail.com"}
           src="/static/images/avatar/7.jpg"
           sx={{ width: 36, height: 36 }}
         />
@@ -53,7 +53,7 @@ export default function SideMenu() {
             {"cz"}
           </Typography>
           <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            {"chenzhao7920@gmail.com"}
+            {"user@gmail.com"}
           </Typography>
         </Box>
         {/* <OptionsMenu /> */}
